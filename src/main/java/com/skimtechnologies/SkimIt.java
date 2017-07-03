@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.skimtechnologies.client.HttpClient;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * SkimIt SDK entry point
@@ -85,11 +84,8 @@ public final class SkimIt {
      * @return the alert delete response
      */
     public boolean alertDelete(String alertId) {
-        Map<String, String> response = client.delete(
-                String.format("alerts/%s", alertId),
-                null,
-                new TypeReference<Map<String, String>>() { });
-        return response.get("deleted").equals(alertId);
+        AlertDeleted response = client.delete(String.format("alerts/%s", alertId), null, AlertDeleted.class);
+        return response.getDeleted().equals(alertId);
     }
 
     /**

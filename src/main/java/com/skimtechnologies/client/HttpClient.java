@@ -1,6 +1,5 @@
 package com.skimtechnologies.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skimtechnologies.Configuration;
@@ -26,7 +25,6 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -49,42 +47,56 @@ public class HttpClient {
     }
 
     public <T> T get(String path, Object parameters, Class<T> responseType) {
-        try {
-            return objectMapper.readValue(execute(new HttpGet(getUri(path, parameters))), responseType);
-        } catch (IOException | URISyntaxException e) {
-            throw new SkimItException(e);
-        }
+        return executeAndTransform(new HttpGet(getUri(path, parameters)), responseType);
     }
 
     public <T> T put(String path, Object parameters, Class<T> responseType) {
-        try {
-            return objectMapper.readValue(execute(new HttpPut(getUri(path, parameters))), responseType);
-        } catch (IOException | URISyntaxException e) {
-            throw new SkimItException(e);
-        }
+        return executeAndTransform(new HttpPut(getUri(path, parameters)), responseType);
     }
 
     public <T> T get(String path, Object parameters, TypeReference<T> responseType) {
-        try {
-            return objectMapper.readValue(execute(new HttpGet(getUri(path, parameters))), responseType);
-        } catch (IOException | URISyntaxException e) {
-            throw new SkimItException(e);
-        }
+        return executeAndTransform(new HttpGet(getUri(path, parameters)), responseType);
     }
 
     public <T> T post(String path, Object data, Class<T> responseType) {
+        HttpPost request = setPayload(new HttpPost(getUri(path, null)), data);
+        return executeAndTransform(request, responseType);
+    }
+
+    public <T> T delete(String path, Object parameters, Class<T> responseType) {
+        return executeAndTransform(new HttpDelete(getUri(path, parameters)), responseType);
+    }
+
+    private <T> T executeAndTransform(HttpUriRequest request, Class<T> responseType) {
+        byte[] content = null;
         try {
-            HttpPost request = setPayload(new HttpPost(getUri(path, null)), data);
-            return objectMapper.readValue(execute(request), responseType);
-        } catch (IOException | URISyntaxException e) {
+            content = execute(request);
+            return objectMapper.readValue(content, responseType);
+        } catch (IOException e) {
+            try {
+                throw new SkimItServerException(
+                        200,
+                        "OK",
+                        objectMapper.readValue(content, SkimItError.class));
+            } catch (IOException ignore) { }
+
             throw new SkimItException(e);
         }
     }
 
-    public <T> T delete(String path, Object parameters, TypeReference<T> responseType) {
+    private <T> T executeAndTransform(HttpUriRequest request, TypeReference<T> responseType) {
+        byte[] content = null;
         try {
-            return objectMapper.readValue(execute(new HttpDelete(getUri(path, parameters))), responseType);
-        } catch (IOException | URISyntaxException e) {
+            content = execute(request);
+            return objectMapper.readValue(content, responseType);
+        } catch (IOException e) {
+            try {
+                throw new SkimItServerException(
+                        200,
+                        "OK",
+                        objectMapper.readValue(content, SkimItError.class));
+            } catch (IOException ignore) { }
+
             throw new SkimItException(e);
         }
     }
@@ -107,11 +119,15 @@ public class HttpClient {
         }
     }
 
-    private <T extends HttpEntityEnclosingRequest> T setPayload(T request, Object payload) throws JsonProcessingException, UnsupportedEncodingException {
-        StringEntity entity = new StringEntity(objectMapper.writeValueAsString(payload));
-        entity.setContentType("application/json");
-        request.setEntity(entity);
-        return request;
+    private <T extends HttpEntityEnclosingRequest> T setPayload(T request, Object payload) {
+        try {
+            StringEntity entity = new StringEntity(objectMapper.writeValueAsString(payload));
+            entity.setContentType("application/json");
+            request.setEntity(entity);
+            return request;
+        } catch (IOException e) {
+            throw new SkimItException(e);
+        }
     }
 
     private void throwError(CloseableHttpResponse response) {
@@ -158,7 +174,7 @@ public class HttpClient {
         return context;
     }
 
-    private URI getUri(String path, Object params) throws URISyntaxException {
+    private URI getUri(String path, Object params) {
         StringBuilder uri = new StringBuilder(configuration.getEndpoint())
                 .append("/")
                 .append(path);
@@ -167,6 +183,10 @@ public class HttpClient {
             uri.append(parameterMapper.write(params));
         }
 
-        return new URI(uri.toString());
+        try {
+            return new URI(uri.toString());
+        } catch (URISyntaxException e) {
+            throw new SkimItException(e);
+        }
     }
 }

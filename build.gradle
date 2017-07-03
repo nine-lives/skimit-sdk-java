@@ -8,7 +8,7 @@ apply from: "$rootDir/coverage.gradle"
 Properties versionProperties = new Properties();
 versionProperties.load(new File(rootDir, "src/main/resources/version.properties").newInputStream())
 version = versionProperties.getProperty("version")
-group = 'com.skimtechnologies'
+group = 'com.9ls'
 archivesBaseName = "skimit-java-sdk"
 
 signing {
@@ -58,7 +58,8 @@ task integrationTest(type: Test) {
     outputs.upToDateWhen { false }
 
     systemProperties = [
-            skimitApiKey: System.getProperty('skimitApiKey')
+            skimitApiKey: System.getProperty('skimitApiKey'),
+            skimitEndpoint: System.getProperty('skimitEndpoint')
     ]
 
     jacoco {
