@@ -4,7 +4,7 @@ import spock.lang.Unroll
 
 class AlertsIntegrationSpec extends BaseIntegrationSpec {
 
-    def "I can see the data from the server is correct"() {
+    def "I can create, list and delete alerts from the server"() {
         when:
         Alert alert = skimIt.alertCreate(new AlertCreateRequest().withKeyTerms(["fake news"] as Set).withTitle("[INT_TEST] Fake News"));
 
