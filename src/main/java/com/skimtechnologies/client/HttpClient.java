@@ -10,6 +10,7 @@ import com.skimtechnologies.util.ObjectMapperFactory;
 import com.skimtechnologies.util.RateLimiter;
 import com.skimtechnologies.util.RequestParameterMapper;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -75,7 +76,7 @@ public class HttpClient {
         } catch (IOException e) {
             try {
                 throw new SkimItServerException(
-                        200,
+                        HttpStatus.SC_OK,
                         "OK",
                         objectMapper.readValue(content, SkimItError.class));
             } catch (IOException ignore) { }
@@ -92,7 +93,7 @@ public class HttpClient {
         } catch (IOException e) {
             try {
                 throw new SkimItServerException(
-                        200,
+                        HttpStatus.SC_OK,
                         "OK",
                         objectMapper.readValue(content, SkimItError.class));
             } catch (IOException ignore) { }
@@ -111,7 +112,7 @@ public class HttpClient {
         request.addHeader("Accepts", "application/json");
 
         try (CloseableHttpResponse response = httpClient.execute(request, getHttpContext())) {
-            if (response.getStatusLine().getStatusCode() >= 400) {
+            if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_BAD_REQUEST) {
                 throwError(response);
             }
 

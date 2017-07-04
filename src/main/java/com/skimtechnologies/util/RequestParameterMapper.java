@@ -32,11 +32,8 @@ public class RequestParameterMapper {
             Map<String, String> values = new LinkedHashMap<>();
             for (Field field : getDeclaredFields(object.getClass())) {
                 field.setAccessible(true);
-                if (Modifier.isTransient(field.getModifiers())) {
-                    continue;
-                }
                 Object value = field.get(object);
-                if (value == null) {
+                if (value == null || Modifier.isTransient(field.getModifiers())) {
                     continue;
                 }
                 if (value instanceof Collection) {

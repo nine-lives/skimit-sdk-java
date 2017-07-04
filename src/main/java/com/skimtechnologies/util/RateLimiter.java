@@ -1,6 +1,7 @@
 package com.skimtechnologies.util;
 
 import java.time.Clock;
+import java.util.concurrent.TimeUnit;
 
 public class RateLimiter {
     private final int requestBurstSize;
@@ -10,7 +11,7 @@ public class RateLimiter {
 
     public RateLimiter(int requestsPerSecond, int requestBurstSize) {
         this.requestBurstSize = requestBurstSize;
-        this.burstTimeLimit = requestBurstSize / requestsPerSecond * 1000;
+        this.burstTimeLimit = TimeUnit.SECONDS.toMillis(requestBurstSize / requestsPerSecond);
     }
 
     public void blockTillRateLimitReset() {

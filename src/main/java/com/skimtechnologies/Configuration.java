@@ -4,14 +4,18 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class Configuration {
+    private static final int DEFAULT_MAX_CONNECTIONS_PER_ROUTE = 20;
+    private static final int DEFAULT_REQUESTS_PER_SECOND = 5;
+    private static final int DEFAULT_REQUEST_BURST_SIZE = 20;
+
     private final String sdkUserAgent;
     private String userAgent;
     private String endpoint = "https://api.skimtechnologies.com/v2";
     private String apiKey;
-    private int maxConnectionsPerRoute = 20;
+    private int maxConnectionsPerRoute = DEFAULT_MAX_CONNECTIONS_PER_ROUTE;
     private boolean blockTillRateLimitReset;
-    private int requestsPerSecond = 5;
-    private int requestBurstSize = 20;
+    private int requestsPerSecond = DEFAULT_REQUESTS_PER_SECOND;
+    private int requestBurstSize = DEFAULT_REQUEST_BURST_SIZE;
 
     public Configuration() {
         sdkUserAgent = "skimit-java-sdk/" + getVersion();
