@@ -14,7 +14,6 @@ public class RateLimiter {
     }
 
     public void blockTillRateLimitReset() {
-        long nextBurstStartTime = lastBurstStartTime + burstTimeLimit;
         if (getRequestLeftInBurst() <= 0) {
             long blockFor = getMillisTillNextBurstWindow();
             if (blockFor > 0) {

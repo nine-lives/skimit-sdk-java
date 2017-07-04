@@ -44,4 +44,13 @@ public class AlertSkimsRequest {
             throw new SkimItException(e);
         }
     }
+
+    @Override
+    public String toString() {
+        return "AlertSkimsRequest{" +
+                "limit=" + limit +
+                ", since=" + since +
+                ", topics='" + topics + '\'' +
+                '}';
+    }
 }

@@ -7,4 +7,11 @@ public class UriRequest {
         this.uri = uri;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "UriRequest{" +
+                "uri='" + uri + '\'' +
+                '}';
+    }
 }

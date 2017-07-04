@@ -15,4 +15,12 @@ public class AlertCreateRequest {
         this.keyTerms = keyTerms;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "AlertCreateRequest{" +
+                "title='" + title + '\'' +
+                ", keyTerms=" + keyTerms +
+                '}';
+    }
 }
